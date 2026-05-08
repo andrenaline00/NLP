@@ -10,9 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, classification_report
 
 
-# ============================================================
-# 1. LOAD DATA
-# ============================================================
+
 
 train_df = pd.read_csv("train.csv")
 valid_df = pd.read_csv("valid.csv")
@@ -22,10 +20,6 @@ print("Train shape:", train_df.shape)
 print("Valid shape:", valid_df.shape)
 print("Test  shape:", test_df.shape)
 
-
-# ============================================================
-# 2. EXPLORE DATA
-# ============================================================
 
 print("\n--- Hazard Category Distribution (train) ---")
 print(train_df["hazard-category"].value_counts())
