@@ -113,19 +113,49 @@ colors_h = ['#d32f2f' if c < 100 else '#ff9800' if c < 500 else '#388e3c'
 colors_p = ['#d32f2f' if c < 20  else '#ff9800' if c < 100 else '#388e3c'
             for c in product_counts.values]
  
-hazard_counts.plot(kind='bar',  ax=axes[0], color=colors_h)
-axes[0].set_title('Hazard Category Distribution', fontsize=13)
-axes[0].tick_params(axis='x', rotation=45)
+ #hazard plot
+
+hazard_counts.plot(kind='bar', ax=axes[0], color=colors_h)
+axes[0].set_title(
+    f'Hazard Category Distribution  '
+    f'(imbalance: {hazard_counts.max()//hazard_counts.min()}x)',
+    fontsize=13, fontweight='bold'
+)
+axes[0].tick_params(axis='x', rotation=50)
 axes[0].set_ylabel('Number of examples')
- 
+# Αριθμοί πάνω από κάθε μπάρα
+for bar, val in zip(axes[0].patches, hazard_counts.values):
+    axes[0].text(
+        bar.get_x() + bar.get_width() / 2,
+        bar.get_height() + 10,
+        str(val), ha='center', va='bottom', fontsize=8, fontweight='bold'
+    )
+
+
+
+
+
+
+
+#product plot
 product_counts.plot(kind='bar', ax=axes[1], color=colors_p)
-axes[1].set_title('Product Category Distribution', fontsize=13)
-axes[1].tick_params(axis='x', rotation=45)
+axes[1].set_title(
+    f'Product Category Distribution  '
+    f'(imbalance: {product_counts.max()//product_counts.min()}x)',
+    fontsize=13, fontweight='bold'
+)
+axes[1].tick_params(axis='x', rotation=50)
 axes[1].set_ylabel('Number of examples')
+for bar, val in zip(axes[1].patches, product_counts.values):
+    axes[1].text(
+        bar.get_x() + bar.get_width() / 2,
+        bar.get_height() + 5,
+        str(val), ha='center', va='bottom', fontsize=7, fontweight='bold'
+    )
+ 
 
 
-
-
+#save png
 plt.tight_layout()
 plt.savefig('class_distribution.png', dpi=150, bbox_inches='tight')
 plt.show()
@@ -164,12 +194,6 @@ print(temp.groupby('hazard-category')['title_length'].mean().sort_values(ascendi
 
 
 
-
-
-
-
-
-
 # Compare title vs full text length
 train['text_length'] = train['text'].str.split().str.len()
 print("TEXT column length stats:")
@@ -188,9 +212,12 @@ for i in range(2):
 # See more of the full text
 print(train['text'].iloc[0])
 
-recent_rows = train[train['year'] > 2015].iloc[0]
+
+#recent example
+recent_rows = train[train['year'] > 2015]
 if len(recent_rows)>0:
     recent=recent_rows.iloc[0]
+    print(f"\nRecent Example (year > 2015):")
     print(f"TITLE: {recent['title']}")
     print(f"\nTEXT: {recent['text'][:500]}")
     print(f"\nhazard-category: {recent['hazard-category']}")
@@ -212,3 +239,18 @@ unseen_prod = valid_prod - train_prod
  
 print(f"\nHazard labels in valid but NOT in train:  {unseen_haz if unseen_haz else 'None ✓'}")
 print(f"Product labels in valid but NOT in train: {unseen_prod if unseen_prod else 'None ✓'}" )
+
+
+
+#added
+# Train vs Valid distribution comparison
+# βλέπουμε αν η κατανομή είναι ίδια
+# Αν πχ το valid έχει πολύ περισσότερα παραδείγματα σε μια κατηγορία, τότε το μοντέλο μπορεί να δυσκολευτεί να γενικεύσει
+print("\n--- Train vs Valid Hazard Distribution ---")
+comparison = pd.DataFrame({
+    'train': train['hazard-category'].value_counts(),
+    'valid': valid['hazard-category'].value_counts()
+}).fillna(0).astype(int)
+comparison['train_%'] = (comparison['train'] / comparison['train'].sum() * 100).round(1)
+comparison['valid_%'] = (comparison['valid'] / comparison['valid'].sum() * 100).round(1)
+print(comparison)

@@ -3,5 +3,10 @@
     "f1_hazard": 0.5898,
     "f1_product": 0.4585,
     "score": 0.5241
+  },
+  "v4": {
+    "f1_hazard": 0.8056,
+    "f1_product": 0.6651,
+    "score": 0.7353
   }
 }
